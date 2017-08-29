@@ -18,11 +18,13 @@ fn evaluate_square(square: &Option<Piece>) -> i64 {
 
 type Board = [[Option<Piece>; 3]; 3];
 
+
 fn empty_board() -> Board {
     [[None; 3]; 3]
 }
 
 fn print_board(board: Board) {
+    println!("-=--=--=--=-");
     print!("   ");
     for x in 0..3 {
         print!(" {} ", x);
@@ -40,6 +42,7 @@ fn print_board(board: Board) {
         }
         println!();        
     }
+    println!("-=--=--=--=-");
 }
 
 fn read_player_input() -> usize {
@@ -64,45 +67,15 @@ fn evaluate_line(line: [Option<Piece>; 3]) -> Option<Piece> {
     }
 }
 
-fn check_columns(board: &Board) -> Option<Piece> {
-    for x in 0 .. 3 {
-        let column = board[x];
-        let result = evaluate_line(column);
-        if result.is_some() {
-            return result
-        }
-    }
-    None
-}
-
-fn check_rows(board: &Board) -> Option<Piece> {
-    for y in 0 .. 3 {
-        let row = [board[0][y], board[1][y], board[2][y]];
-        let result = evaluate_line(row);
-        if result.is_some() {
-            return result
-        }
-    }
-    None
-}
-
-fn check_diagonals(board: &Board) -> Option<Piece> {
-    let d = [board[0][0], board[1][1], board[2][2]];
-    let result = evaluate_line(d);
-    if result.is_some() {
-        return result
-    }
-    let d = [board[0][2], board[1][1], board[2][0]];
-    evaluate_line(d)    
-}
-
 fn evaluate_board(board: &Board) -> Option<Piece> {
-    let cs = check_columns(board);
-    let rs = check_rows(board);
-    let ds = check_diagonals(board);
-    for result in &[cs, ds, rs] {
+    for result in
+        (0 .. 3).map(|x| board[x])
+        .chain((0 .. 3).map(|y| [board[0][y], board[1][y], board[2][y]]))
+        .chain(iter::once([board[0][0], board[1][1], board[2][2]]))
+        .chain(iter::once([board[0][2], board[1][1], board[2][0]]))
+        .map(evaluate_line) {
         if result.is_some() {
-            return *result
+            return result
         }
     }
     None
@@ -122,14 +95,16 @@ fn make_computers_move(board: &mut Board) {
 }
 
 fn main() {
+    println!("Noughts VS Crosses");
+    println!();
     let mut board: Board = empty_board();    
     let mut moves = 0;
     loop {
         'input: loop {
             print_board(board);
-            println!("column?");
+            println!("enter column:");
             let x = read_player_input();
-            println!("row?");
+            println!("enter row:`");
             let y = read_player_input();
             if board[x][y].is_none() {
                 board[x][y] = Some(Piece::X);
@@ -142,8 +117,8 @@ fn main() {
         let result = evaluate_board(&board);
         if let Some(winner) = result {
             print_board(board);
-            let winner = match winner { Piece::X => "Xs", Piece::O => "Os" };
-            println!("{} win!", winner);
+            let winner = match winner { Piece::X => "You win!", Piece::O => "Computer wins!" };
+            println!("{}", winner);
             std::process::exit(0)
         }
         if moves == 9 {
