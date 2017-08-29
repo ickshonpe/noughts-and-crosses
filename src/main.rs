@@ -33,8 +33,8 @@ fn print_board(board: Board) {
         for x in 0..3 {
             let square = match board[x][y] {
                    Some(Piece::X) => "X",
-                    Some(Piece::O) => "O",
-                    _ => "."
+                   Some(Piece::O) => "O",
+                   _ => "."
                 };
             print!(" {} ", square);
         }
@@ -100,7 +100,7 @@ fn evaluate_board(board: &Board) -> Option<Piece> {
     let cs = check_columns(board);
     let rs = check_rows(board);
     let ds = check_diagonals(board);
-    for result in [cs, ds, rs].iter() {
+    for result in &[cs, ds, rs] {
         if result.is_some() {
             return *result
         }
@@ -109,7 +109,7 @@ fn evaluate_board(board: &Board) -> Option<Piece> {
 }
 
 // advanced machine intelligence bit here
-fn make_computer_move(board: &mut Board) {
+fn make_computers_move(board: &mut Board) {    
     use rand::Rng;
     loop {
         let x: usize = rand::thread_rng().gen_range(0, 3);
@@ -151,7 +151,7 @@ fn main() {
             println!("You DRAW!");
             std::process::exit(0)
         }
-        make_computer_move(&mut board);
+        make_computers_move(&mut board);
         moves += 1;
     }
 }
