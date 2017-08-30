@@ -24,8 +24,7 @@ fn empty_board() -> Board {
 }
 
 fn print_board(board: Board) {
-    println!("-=--=--=--=-");
-    print!("   ");
+    print!("-=--=--=--=-\n   ");
     for x in 0..3 {
         print!(" {} ", x);
     }
@@ -68,11 +67,12 @@ fn evaluate_line(line: [Option<Piece>; 3]) -> Option<Piece> {
 }
 
 fn evaluate_board(board: &Board) -> Option<Piece> {
+    use std::iter::once;
     for result in
         (0 .. 3).map(|x| board[x])
         .chain((0 .. 3).map(|y| [board[0][y], board[1][y], board[2][y]]))
-        .chain(iter::once([board[0][0], board[1][1], board[2][2]]))
-        .chain(iter::once([board[0][2], board[1][1], board[2][0]]))
+        .chain(once([board[0][0], board[1][1], board[2][2]]))
+        .chain(once([board[0][2], board[1][1], board[2][0]]))
         .map(evaluate_line) {
         if result.is_some() {
             return result
@@ -85,8 +85,8 @@ fn evaluate_board(board: &Board) -> Option<Piece> {
 fn make_computers_move(board: &mut Board) {    
     use rand::Rng;
     loop {
-        let x: usize = rand::thread_rng().gen_range(0, 3);
-        let y: usize = rand::thread_rng().gen_range(0, 3);
+        let x = rand::thread_rng().gen_range(0, 3);
+        let y = rand::thread_rng().gen_range(0, 3);
         if board[x][y].is_none() {
             board[x][y] = Some(Piece::O);
             break;
@@ -95,7 +95,7 @@ fn make_computers_move(board: &mut Board) {
 }
 
 fn main() {
-    println!("Noughts VS Crosses");
+    println!("Noughts & Crosses");
     println!();
     let mut board: Board = empty_board();    
     let mut moves = 0;
@@ -104,7 +104,7 @@ fn main() {
             print_board(board);
             println!("enter column:");
             let x = read_player_input();
-            println!("enter row:`");
+            println!("enter row:");
             let y = read_player_input();
             if board[x][y].is_none() {
                 board[x][y] = Some(Piece::X);
@@ -114,11 +114,9 @@ fn main() {
             }
         }        
         moves += 1;
-        let result = evaluate_board(&board);
-        if let Some(winner) = result {
+        if let Some(_) = evaluate_board(&board) {
             print_board(board);
-            let winner = match winner { Piece::X => "You win!", Piece::O => "Computer wins!" };
-            println!("{}", winner);
+            println!("You win!");
             std::process::exit(0)
         }
         if moves == 9 {
@@ -127,6 +125,11 @@ fn main() {
             std::process::exit(0)
         }
         make_computers_move(&mut board);
+        if let Some(_) = evaluate_board(&board) {
+            print_board(board);
+            println!("Computer wins!");
+            std::process::exit(0)
+        }
         moves += 1;
     }
 }
