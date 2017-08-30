@@ -69,17 +69,17 @@ fn evaluate_line(line: [Option<Piece>; 3]) -> Option<Piece> {
 fn evaluate_board(board: &Board) -> Option<Piece> {
     use std::iter::once;
     for result in
-        (0 .. 3).map(|x| board[x])
-        .chain((0 .. 3).map(|y| [board[0][y], board[1][y], board[2][y]]))
-        .chain(once([board[0][0], board[1][1], board[2][2]]))
-        .chain(once([board[0][2], board[1][1], board[2][0]]))
-        .map(evaluate_line) {
+            (0 .. 3).map(|x| board[x])
+            .chain((0 .. 3).map(|y| [board[0][y], board[1][y], board[2][y]]))
+            .chain(vec![[board[0][0], board[1][1], board[2][2]], [board[0][2], board[1][1], board[2][0]]])
+            .map(evaluate_line) {
         if result.is_some() {
             return result
         }
     }
     None
 }
+
 
 // advanced machine intelligence bit here
 fn make_computers_move(board: &mut Board) {    
