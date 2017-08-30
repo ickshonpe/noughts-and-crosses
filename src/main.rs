@@ -33,13 +33,13 @@ fn print_board(board: Board) {
         print!(" {} ", y);
         for x in 0..3 {
             let square = match board[x][y] {
-                   Some(Piece::X) => "X",
-                   Some(Piece::O) => "O",
-                   _ => "."
-                };
+                Some(Piece::X) => "X",
+                Some(Piece::O) => "O",
+                _ => "."
+            };
             print!(" {} ", square);
         }
-        println!();        
+        println!();
     }
     println!("-=--=--=--=-");
 }
@@ -50,11 +50,11 @@ fn read_player_input() -> usize {
         io::stdin().read_line(&mut input).expect("Failed to read line!");
         if let Ok(num) = input.trim().parse::<usize>() {
             if num < 3 {
-                return num
+                return num;
             }
-        } 
-        println!("Please enter a number between 0 and 2");        
-    } 
+        }
+        println!("Please enter a number between 0 and 2");
+    }
 }
 
 fn evaluate_line(line: [Option<Piece>; 3]) -> Option<Piece> {
@@ -67,14 +67,13 @@ fn evaluate_line(line: [Option<Piece>; 3]) -> Option<Piece> {
 }
 
 fn evaluate_board(board: &Board) -> Option<Piece> {
-    use std::iter::once;
     for result in
-            (0 .. 3).map(|x| board[x])
-            .chain((0 .. 3).map(|y| [board[0][y], board[1][y], board[2][y]]))
+        (0..3).map(|x| board[x])
+            .chain((0..3).map(|y| [board[0][y], board[1][y], board[2][y]]))
             .chain(vec![[board[0][0], board[1][1], board[2][2]], [board[0][2], board[1][1], board[2][0]]])
             .map(evaluate_line) {
         if result.is_some() {
-            return result
+            return result;
         }
     }
     None
@@ -82,7 +81,7 @@ fn evaluate_board(board: &Board) -> Option<Piece> {
 
 
 // advanced machine intelligence bit here
-fn make_computers_move(board: &mut Board) {    
+fn make_computers_move(board: &mut Board) {
     use rand::Rng;
     loop {
         let x = rand::thread_rng().gen_range(0, 3);
@@ -95,41 +94,37 @@ fn make_computers_move(board: &mut Board) {
 }
 
 fn main() {
-    println!("Noughts & Crosses");
-    println!();
-    let mut board: Board = empty_board();    
-    let mut moves = 0;
-    loop {
-        'input: loop {
-            print_board(board);
-            println!("enter column:");
-            let x = read_player_input();
-            println!("enter row:");
-            let y = read_player_input();
-            if board[x][y].is_none() {
-                board[x][y] = Some(Piece::X);
-                break 'input;
-            } else {
-                println!("Invalid move, choose an unoccupied square!");
+    println!("Noughts & Crosses\n");
+    let mut board: Board = empty_board();
+    let mut turn = 0;
+    while turn < 9 {
+        if turn % 2 == 0 {
+            'input: loop {
+                print_board(board);
+                println!("enter column:");
+                let x = read_player_input();
+                println!("enter row:");
+                let y = read_player_input();
+                if board[x][y].is_none() {
+                    board[x][y] = Some(Piece::X);
+                    break 'input;
+                } else {
+                    println!("Invalid move, choose an unoccupied square!");
+                }
             }
-        }        
-        moves += 1;
-        if let Some(_) = evaluate_board(&board) {
+        } else {
+            make_computers_move(&mut board);
+        }
+        if let Some(p) = evaluate_board(&board) {
             print_board(board);
-            println!("You win!");
+            println!("{}", match p {
+                Piece::X => "You win!",
+                Piece::O => "Computer wins!"
+            });
             std::process::exit(0)
         }
-        if moves == 9 {
-            print_board(board);
-            println!("You DRAW!");
-            std::process::exit(0)
-        }
-        make_computers_move(&mut board);
-        if let Some(_) = evaluate_board(&board) {
-            print_board(board);
-            println!("Computer wins!");
-            std::process::exit(0)
-        }
-        moves += 1;
+        turn += 1;
     }
+    print_board(board);
+    println!("DRAW!");
 }
